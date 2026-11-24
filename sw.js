@@ -1,5 +1,5 @@
 /* Eklektik World app-shell cache. Live tiles and APIs are never cached. */
-const CACHE = 'eklektik-world-v23-home-sm';
+const CACHE = 'eklektik-world-v23-saturn-music2';
 const SHELL = [
   './',
   './index.html',
