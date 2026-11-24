@@ -1,5 +1,5 @@
 /* Eklektik World app-shell cache. Live tiles and APIs are never cached. */
-const CACHE = 'eklektik-world-v23-nav3';
+const CACHE = 'eklektik-world-v23-poles2';
 const SHELL = [
   './',
   './index.html',
@@ -13,6 +13,8 @@ const SHELL = [
   './a/limb.js',
   './a/tr.js',
   './a/app.js',
+  './a/poleN.png',
+  './a/poleS.png',
   './a/gr.json',
   './a/ph.json'
 ];
