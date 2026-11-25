@@ -1,0 +1,78 @@
+# Daily NASA SDO disc for the space-view Sun. Normal commit + push only (no force, no SW bump).
+# The texture is fetched network-first (see sw.js) so clients see the new image without a cache bump.
+name: sun-today
+on:
+  schedule:
+    - cron: "0 6 * * *"   # 06:00 UTC daily
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Commit even if the observation is unchanged (refresh fetched_at)"
+        type: boolean
+        default: true
+concurrency:
+  group: sun-today
+  cancel-in-progress: false
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Dependencies
+        run: pip install --quiet pillow numpy
+      - name: Build today's disc
+        run: python3 tools/sun_today.py -o a
+      - name: Commit and push (no force)
+        env:
+          FORCE: ${{ github.event_name == 'workflow_dispatch' && inputs.force || 'false' }}
+        run: |
+          set -e
+          git config user.name "eklektikchange-a11y"
+          git config user.email "eklektikchange-a11y@users.noreply.github.com"
+          git add a/sun_today.webp a/sun_today.json
+          DATE=$(python3 -c "import json;print(json.load(open('a/sun_today.json')).get('date',''))")
+          if git diff --cached --quiet; then
+            echo "no file change"
+            if [ "$FORCE" = "true" ]; then
+              python3 - << 'PY'
+          import json, datetime
+          from datetime import timezone
+          p="a/sun_today.json"
+          j=json.load(open(p))
+          j["fetched_at"]=datetime.datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+          json.dump(j, open(p,"w"), ensure_ascii=False, indent=2)
+          open(p,"a").write("\n")
+          PY
+              git add a/sun_today.json
+            else
+              echo "skip commit (unchanged, scheduled)"
+              exit 0
+            fi
+          fi
+          if git diff --cached --quiet; then
+            echo "still nothing to commit"; exit 0
+          fi
+          git commit -m "Sun: NASA SDO disc for ${DATE}"
+          i=1
+          while [ $i -le 6 ]; do
+            git fetch origin main
+            if git pull --rebase origin main && git push origin HEAD:main; then
+              echo "pushed"
+              exit 0
+            fi
+            echo "push/rebase failed, retry $i"
+            git rebase --abort || true
+            sleep $((i * 15))
+            i=$((i + 1))
+          done
+          echo "gave up after retries" >&2
+          exit 1

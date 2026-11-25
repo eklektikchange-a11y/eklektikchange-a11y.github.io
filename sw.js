@@ -1,5 +1,5 @@
 /* Eklektik World app-shell cache. Live tiles and APIs are never cached. */
-const CACHE = 'eklektik-world-v23-splash2';
+const CACHE = 'eklektik-world-v23-sunreal1';
 const SHELL = [
   './',
   './index.html',
@@ -43,7 +43,7 @@ self.addEventListener('activate', function (event) {
 
 function isLiveData(url) {
   const s = url.href;
-  return /\/tiles?\b|arcgisonline|openstreetmap|tile\.|mapbox|nominatim|photon|open-meteo|weather|geocod|wikimedia|wikipedia/i.test(s);
+  return /\/tiles?\b|arcgisonline|openstreetmap|tile\.|mapbox|nominatim|photon|open-meteo|weather|geocod|wikimedia|wikipedia|\/a\/sun_today\.(webp|json)/i.test(s);
 }
 
 async function networkFirst(req) {
