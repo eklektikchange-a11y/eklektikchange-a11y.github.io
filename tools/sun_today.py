@@ -22,11 +22,11 @@ UA = "EklektikWorld/1.0 (sun-today; educational)"
 
 # H-alpha style luminance → RGB (values 0..1). Highlights stay warm yellow, never white.
 PAL = np.array([
-    [0.00, 0.22, 0.030, 0.010],
-    [0.14, 0.58, 0.100, 0.020],
-    [0.30, 0.86, 0.230, 0.035],
-    [0.46, 0.98, 0.380, 0.060],
-    [0.60, 1.00, 0.540, 0.100],
+    [0.00, 0.30, 0.050, 0.012],
+    [0.14, 0.62, 0.110, 0.020],
+    [0.30, 0.88, 0.240, 0.035],
+    [0.46, 1.00, 0.410, 0.065],
+    [0.60, 1.00, 0.560, 0.105],
     [0.74, 1.00, 0.720, 0.180],
     [0.86, 1.00, 0.850, 0.280],
     [1.00, 1.00, 0.920, 0.400],
@@ -379,19 +379,14 @@ def build(aia_im: Image.Image, hmi_im: Image.Image, out_w: int = 2048):
     a_den = a_den - over * (0.45 + 0.50 * w_edge)
 
     inside = a_den[rho_s <= 0.92]
-    lo, mid, hi = np.percentile(inside, [8, 50, 99.0])
-    Llin = np.clip((a_den - lo) / max(hi - lo, 1e-6), 0, 1)
-    mid_lin = float(np.clip((mid - lo) / max(hi - lo, 1e-6), 0.05, 0.95))
-    # power that lands the quiet-sun median on deep orange (~0.46)
-    pwr = np.log(0.46) / np.log(mid_lin)
-    pwr = float(np.clip(pwr, 0.45, 1.8))
-    L = np.power(np.clip(Llin, 0, 1), pwr)
-    # fibril-scale unsharp (no fine grain); keep a floor so close-ups aren't two-tone holes
-    L = highpass(L, sigma=8.0, amt=0.48)
-    L = np.clip(L, 0.10, 1)
-    L = s_curve(L, mid=0.48, k=0.70)
-    L = soft_highlight(L, start=0.84, range_=0.20)
-    L = np.clip(L, 0, 1)
+    # quantile-map the flattened chromosphere to a *gentle* orange range:
+    # dark end stays deep orange-red (never brown/black), median orange, rare plage yellow.
+    qs = np.percentile(inside, [3, 25, 50, 80, 97, 99.7])
+    qs = np.maximum.accumulate(qs + np.arange(len(qs)) * 1e-5)
+    L = np.interp(a_den, qs, [0.27, 0.37, 0.46, 0.55, 0.67, 0.84]).astype(np.float32)
+    # fine fibrils: small-scale unsharp, low amplitude (no harsh blotches)
+    L = highpass(L, sigma=2.8, amt=0.42)
+    L = np.clip(L, 0.24, 1)
 
     # HMI spots on the source grid
     pen = np.clip((0.90 - h_flat) / max(0.90 - 0.55, 1e-6), 0, 1)
@@ -402,8 +397,9 @@ def build(aia_im: Image.Image, hmi_im: Image.Image, out_w: int = 2048):
     pen, umb = blur1(pen, 1.1), blur1(umb, 0.7)
 
     # gentle H-alpha limb brightening on luminance (shader adds the glowing ring)
-    limb = 1.0 + 0.06 * np.clip(rho_s, 0, 1) ** 2 + 0.05 * np.clip(rho_s, 0, 1) ** 8
-    L = soft_highlight(np.clip(L * limb, 0, 1), start=0.80, range_=0.24)
+    rr_ = np.clip(rho_s, 0, 1)
+    L = L + 0.05 * rr_ ** 2 + 0.17 * rr_ ** 7
+    L = soft_highlight(np.clip(L, 0, 1), start=0.80, range_=0.24)
     L = np.clip(L, 0, 0.94)
 
     rgb = colorize(L)
@@ -416,10 +412,10 @@ def build(aia_im: Image.Image, hmi_im: Image.Image, out_w: int = 2048):
     out = sample_disc(rgb, cx_a, cy_a, r_src_a, out_w, R_OUT)
     pen_o = sample_disc(pen, cx_h, cy_h, r_src_h, out_w, R_OUT)
     umb_o = sample_disc(umb, cx_h, cy_h, r_src_h, out_w, R_OUT)
-    umber = np.array([0.12, 0.04, 0.015], dtype=np.float32)
+    umber = np.array([0.20, 0.07, 0.02], dtype=np.float32)
     pcol = np.array([0.40, 0.16, 0.04], dtype=np.float32)
     out = out * (1 - 0.70 * pen_o[..., None]) + pcol * (0.30 * pen_o[..., None])
-    out = out * (1 - 0.86 * umb_o[..., None]) + umber * (0.22 * umb_o[..., None])
+    out = out * (1 - 0.74 * umb_o[..., None]) + umber * (0.20 * umb_o[..., None])
     out = np.clip(out, 0, 1)
     yy, xx = np.ogrid[:out_w, :out_w]
     rho = np.hypot(xx - (out_w - 1) / 2.0, yy - (out_w - 1) / 2.0) / (out_w / 2.0)
@@ -442,6 +438,40 @@ def build(aia_im: Image.Image, hmi_im: Image.Image, out_w: int = 2048):
     out = out * aa[..., None] + fill * (1.0 - aa)[..., None]
     out = np.clip(out, 0, 1)
     return (out * 255.0 + 0.5).astype(np.uint8), (cx_a, cy_a, r_a, r_src_a, R_OUT)
+
+
+def build_white(hmi_im: Image.Image, out_w: int = 2048) -> np.ndarray:
+    """True-colour (white light) disc from the HMI continuum: real sunspots + granulation,
+    limb darkening removed here (the shader applies a physical limb-darkening law)."""
+    hg = to_gray(hmi_im)
+    cx, cy, r = fit_disc(hg)
+    r_src = r * R_IN
+    flat = apply_profile(hg, cx, cy, r_src, radial_profile(hg, cx, cy, r_src, cap=0.99))
+    h, w = flat.shape
+    yy, xx = np.ogrid[:h, :w]
+    rho = np.hypot(xx - cx, yy - cy) / r_src
+    q = float(np.median(flat[rho < 0.8]))
+    I = flat / max(q, 1e-6)
+    def blur(a, sig):
+        t = np.clip(a * 127.5, 0, 255).astype(np.uint8)  # 0..2 -> 0..255
+        im = Image.fromarray(t, "L")
+        return np.asarray(im.filter(ImageFilter.GaussianBlur(radius=sig)), dtype=np.float32) / 127.5
+    gran = I - blur(I, 2.2)
+    # boost granulation a little, but never inside spots (keep umbra/penumbra clean)
+    spot = np.clip((0.88 - blur(I, 1.0)) / 0.25, 0, 1)
+    I2 = I + gran * 2.8 * (1 - spot)
+    L = np.clip(0.90 * I2, 0, 1)
+    L = np.where(L > 0.97, 0.97 + 0.03 * (1 - np.exp(-(L - 0.97) * 20)), L)
+    out = sample_disc(L.astype(np.float32), cx, cy, r_src, out_w, R_OUT)
+    yy, xx = np.ogrid[:out_w, :out_w]
+    rho_o = np.hypot(xx - (out_w - 1) / 2.0, yy - (out_w - 1) / 2.0) / (out_w / 2.0)
+    ring = (rho_o >= 0.955) & (rho_o <= 0.996)
+    fill = float(out[ring].mean()) if np.any(ring) else 0.9
+    aa = np.clip((R_OUT - rho_o) / (1.25 / (out_w / 2.0)) + 0.5, 0, 1)
+    out = out * aa + fill * (1 - aa)
+    g = np.clip(out * 255.0 + 0.5, 0, 255).astype(np.uint8)
+    return np.dstack([g, g, g])
+
 
 
 def save_webp(arr: np.ndarray, path: str, q: int = 80) -> int:
@@ -495,6 +525,9 @@ def main():
     arr, meta = build(aia, hmi, 2048)
     webp = os.path.join(args.outdir, "sun_today.webp")
     n = save_webp(arr, webp, 80)
+    warr = build_white(hmi, 2048)
+    wpath = os.path.join(args.outdir, "sun_white.webp")
+    wn = save_webp(warr, wpath, 84)
     info = {
         "date": day,
         "utc": obs,
@@ -503,6 +536,8 @@ def main():
         "src": "NASA SDO / AIA 304 + HMI continuum",
         "disc": R_OUT,
         "bytes": n,
+        "white": "sun_white.webp",
+        "white_bytes": wn,
         "fetched_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
     }
     js = os.path.join(args.outdir, "sun_today.json")
@@ -516,6 +551,10 @@ def main():
         # close-up of a mid-disc patch
         Image.fromarray(arr).crop((700, 700, 1300, 1300)).resize((512, 512)).save(
             os.path.join(args.outdir, "preview_today_close.png"))
+        Image.fromarray(warr).resize((512, 512), Image.Resampling.LANCZOS).save(
+            os.path.join(args.outdir, "preview_white.png"))
+        Image.fromarray(warr).crop((700, 700, 1300, 1300)).resize((512, 512)).save(
+            os.path.join(args.outdir, "preview_white_close.png"))
         # diagnostic: draw fitted used-disc on each source
         from PIL import ImageDraw
         for tag, im, cx, cy, r in (

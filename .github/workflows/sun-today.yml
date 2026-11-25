@@ -38,7 +38,7 @@ jobs:
           set -e
           git config user.name "eklektikchange-a11y"
           git config user.email "eklektikchange-a11y@users.noreply.github.com"
-          git add a/sun_today.webp a/sun_today.json
+          git add a/sun_today.webp a/sun_white.webp a/sun_today.json
           DATE=$(python3 -c "import json;print(json.load(open('a/sun_today.json')).get('date',''))")
           if git diff --cached --quiet; then
             echo "no file change"
