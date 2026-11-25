@@ -1,14 +1,14 @@
 /* Eklektik World app-shell cache. Live tiles and APIs are never cached. */
-const CACHE = 'eklektik-world-v23-icon3';
+const CACHE = 'eklektik-world-v23-icon4';
 const SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
   './apple-touch-icon.png',
-  './a/icon180_v3.png',
-  './a/icon192_v3.png',
-  './a/icon512_v3.png',
-  './a/icon512_maskable_v3.png',
+  './a/icon180_v4.png',
+  './a/icon192_v4.png',
+  './a/icon512_v4.png',
+  './a/icon512_maskable_v4.png',
   './a/maplibre.js',
   './a/liberty.js',
   './a/limb.js',
