@@ -1,12 +1,12 @@
 {
   "date": "2026-11-25",
-  "utc": "2026-11-25T13:48:18Z",
-  "aia": "2026-11-25T13:48:18Z",
-  "hmi": "2026-11-25T13:30:00Z",
+  "utc": "2026-11-25T14:18:30Z",
+  "aia": "2026-11-25T14:18:30Z",
+  "hmi": "2026-11-25T13:45:00Z",
   "src": "NASA SDO / AIA 304 + HMI continuum",
   "disc": 0.998,
-  "bytes": 327760,
+  "bytes": 327528,
   "white": "sun_white.webp",
-  "white_bytes": 519728,
-  "fetched_at": "2026-11-25T14:20:12Z"
+  "white_bytes": 510474,
+  "fetched_at": "2026-11-25T14:29:38Z"
 }
