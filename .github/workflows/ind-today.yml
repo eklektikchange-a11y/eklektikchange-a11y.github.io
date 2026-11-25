@@ -1,0 +1,54 @@
+# Daily country indicators for the country card (World Bank WDI + ITU via World Bank Data360).
+# Commits a/ind.json only when a value changed. Normal commit + push only (no force, no SW bump):
+# the app fetches a/ind.json?d=<date> with cache: no-store and sw.js never caches it.
+name: ind-today
+on:
+  schedule:
+    - cron: "30 6 * * *"   # 06:30 UTC daily
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Rewrite a/ind.json even if no value changed (refresh fetched_at)"
+        type: boolean
+        default: false
+concurrency:
+  group: ind-today
+  cancel-in-progress: false
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Fetch indicators
+        env:
+          FORCE: ${{ github.event_name == 'workflow_dispatch' && inputs.force || 'false' }}
+        run: |
+          if [ "$FORCE" = "true" ]; then python3 tools/ind_today.py -o a --force; else python3 tools/ind_today.py -o a; fi
+      - name: Commit and push (no force)
+        run: |
+          set -e
+          git config user.name "eklektikchange-a11y"
+          git config user.email "eklektikchange-a11y@users.noreply.github.com"
+          git add a/ind.json
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          git commit -m "Country indicators: World Bank / ITU update $(date -u +%F)"
+          i=1
+          while [ $i -le 6 ]; do
+            git fetch origin main
+            if git pull --rebase origin main && git push origin HEAD:main; then echo "pushed"; exit 0; fi
+            echo "push/rebase failed, retry $i"
+            git rebase --abort || true
+            sleep $((i * 15))
+            i=$((i + 1))
+          done
+          echo "gave up after retries" >&2
+          exit 1
