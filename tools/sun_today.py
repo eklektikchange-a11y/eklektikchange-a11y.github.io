@@ -430,10 +430,16 @@ def build(aia_im: Image.Image, hmi_im: Image.Image, out_w: int = 2048):
         return b
     w_edge = np.clip((rho - 0.93) / 0.06, 0, 1)
     w_edge = w_edge * w_edge * (3 - 2 * w_edge)
-    out = out * (1 - w_edge[..., None]) + blur_rgb(out, 1.4) * w_edge[..., None]
-    # 1px antialias only — no dark 'ring'. Interior stays at full color.
+    out = out * (1 - w_edge[..., None]) + blur_rgb(out, 1.6) * w_edge[..., None]
+    # Fill *outside* the disc with the mean limb color (not black). Bilinear
+    # samples at the cap edge and any slight UV warp then stay warm orange.
+    ring = (rho >= 0.955) & (rho <= 0.996)
+    if np.any(ring):
+        fill = out[ring].mean(axis=0).astype(np.float32)
+    else:
+        fill = np.array([0.82, 0.46, 0.12], dtype=np.float32)
     aa = np.clip((R_OUT - rho) / (1.25 / (out_w / 2.0)) + 0.5, 0, 1)
-    out = out * aa[..., None]
+    out = out * aa[..., None] + fill * (1.0 - aa)[..., None]
     out = np.clip(out, 0, 1)
     return (out * 255.0 + 0.5).astype(np.uint8), (cx_a, cy_a, r_a, r_src_a, R_OUT)
 
