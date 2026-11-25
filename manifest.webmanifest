@@ -14,24 +14,24 @@
   "scope": "./",
   "icons": [
     {
-      "src": "a/icon192.png",
+      "src": "a/icon192_v3.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "a/icon0.png",
+      "src": "a/icon512_v3.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "a/icon1.png",
+      "src": "a/icon180_v3.png",
       "sizes": "180x180",
       "type": "image/png"
     },
     {
-      "src": "a/icon512_maskable.png",
+      "src": "a/icon512_maskable_v3.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
