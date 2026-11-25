@@ -3,7 +3,10 @@
   "short_name": "Eklektik",
   "description": "Interactive satellite globe",
   "display": "standalone",
-  "display_override": ["fullscreen", "standalone"],
+  "display_override": [
+    "fullscreen",
+    "standalone"
+  ],
   "orientation": "any",
   "background_color": "#030712",
   "theme_color": "#030712",
@@ -26,6 +29,12 @@
       "src": "a/icon1.png",
       "sizes": "180x180",
       "type": "image/png"
+    },
+    {
+      "src": "a/icon512_maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
