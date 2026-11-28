@@ -1,0 +1,134 @@
+{
+  "src": {
+    "un_snaama": "UN Statistics Division, National Accounts Main Aggregates (January 2026 upload, values for 2024, current US dollars)",
+    "imf_weo": "IMF, World Economic Outlook (October 2026), values for 2025, current US dollars"
+  },
+  "c": {
+    "PRK": {
+      "gdpT": [
+        17199287595,
+        2024,
+        "ООН, Статистический отдел, National Accounts Main Aggregates, 2024, текущие доллары США"
+      ],
+      "gdp": [
+        666.7,
+        2024,
+        "ООН, Статистический отдел, National Accounts Main Aggregates, 2024"
+      ]
+    },
+    "ERI": {
+      "gdpT": [
+        1917081260,
+        2024,
+        "ООН, Статистический отдел, National Accounts Main Aggregates, 2024, текущие доллары США"
+      ],
+      "gdp": [
+        542.2,
+        2024,
+        "ООН, Статистический отдел, National Accounts Main Aggregates, 2024"
+      ]
+    },
+    "TWN": {
+      "gdpT": [
+        920585000000,
+        2025,
+        "МВФ, World Economic Outlook (окт. 2026), за 2025 г., текущие доллары США"
+      ],
+      "gdp": [
+        39512,
+        2025,
+        "МВФ, World Economic Outlook (окт. 2026), за 2025 г."
+      ]
+    },
+    "SDS": {
+      "gdpT": [
+        5539000000,
+        2025,
+        "МВФ, World Economic Outlook (окт. 2026), за 2025 г., текущие доллары США"
+      ],
+      "gdp": [
+        454,
+        2025,
+        "МВФ, World Economic Outlook (окт. 2026), за 2025 г."
+      ]
+    },
+    "SSD": {
+      "gdpT": [
+        5539000000,
+        2025,
+        "МВФ, World Economic Outlook (окт. 2026), за 2025 г., текущие доллары США"
+      ],
+      "gdp": [
+        454,
+        2025,
+        "МВФ, World Economic Outlook (окт. 2026), за 2025 г."
+      ]
+    },
+    "YEM": {
+      "gdpT": [
+        7860000000,
+        2025,
+        "МВФ, World Economic Outlook (окт. 2026), за 2025 г., текущие доллары США"
+      ],
+      "gdp": [
+        418,
+        2025,
+        "МВФ, World Economic Outlook (окт. 2026), за 2025 г."
+      ]
+    },
+    "AIA": {
+      "gdpT": [
+        456466666,
+        2024,
+        "ООН, Статистический отдел, National Accounts Main Aggregates, 2024, текущие доллары США"
+      ],
+      "gdp": [
+        31269.1,
+        2024,
+        "ООН, Статистический отдел, National Accounts Main Aggregates, 2024"
+      ]
+    },
+    "COK": {
+      "gdpT": [
+        414081783,
+        2024,
+        "ООН, Статистический отдел, National Accounts Main Aggregates, 2024, текущие доллары США"
+      ],
+      "gdp": [
+        30161.1,
+        2024,
+        "ООН, Статистический отдел, National Accounts Main Aggregates, 2024"
+      ]
+    },
+    "VGB": {
+      "gdpT": [
+        1829814034,
+        2024,
+        "ООН, Статистический отдел, National Accounts Main Aggregates, 2024, текущие доллары США"
+      ],
+      "gdp": [
+        46358.4,
+        2024,
+        "ООН, Статистический отдел, National Accounts Main Aggregates, 2024"
+      ]
+    },
+    "MSR": {
+      "gdpT": [
+        80981481,
+        2024,
+        "ООН, Статистический отдел, National Accounts Main Aggregates, 2024, текущие доллары США"
+      ],
+      "gdp": [
+        18451.0,
+        2024,
+        "ООН, Статистический отдел, National Accounts Main Aggregates, 2024"
+      ]
+    }
+  },
+  "notes": {
+    "PRK": "UN SNA AMA file 2 (GDP current USD) and file 9 (per capita), 2024. Official UN value 17,199,287,594.87 → 17199287595; per capita 666.732… → 666.7. IMF does not cover the DPRK. Bank of Korea publishes GNI (not used: different exchange-rate basis).",
+    "ERI": "UN SNA AMA 2024 preferred over World Bank 2011 (2,065,001,626 / 688.7) and last IMF WEO year 2019.",
+    "TWN_SDS_YEM": "Nominal totals are IMF WEO Oct 2026 NGDPD for 2025, matching the per-capita figures already on the card (TWN 39512, SDS 454, YEM 418). Published full values: TWN 920,585,000,000; SDS 5,539,000,000; YEM 7,860,000,000 (consistent with NGDPDPC × LP in the repo's imf_gdppc.json / imf_lp.json, rounded to millions as in the WEO tables).",
+    "skipped": "Western Sahara, Antarctica, French Southern Territories: no credible standalone GDP series. Falkland Islands: not in UN SNA AMA or IMF WEO; CIA Factbook was unavailable at patch time. Cuba, Venezuela, Afghanistan, Syria, Liechtenstein, Monaco already have World Bank nominal and per-capita rows (left unchanged). South Korea (KOR) already has World Bank 2025 figures."
+  }
+}

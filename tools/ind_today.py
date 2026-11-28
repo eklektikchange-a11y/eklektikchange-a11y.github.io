@@ -90,6 +90,27 @@ def main():
     for app, src in ALIAS.items():
         if src in data:
             data[app] = data[src]
+
+    # Merge official fallbacks (UN SNA AMA / IMF WEO) for countries the World Bank
+    # does not cover, or where the fallback year is newer than the WB value.
+    fb_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ind_gdp_fallback.json")
+    if not os.path.exists(fb_path):
+        alt = os.path.join(os.path.dirname(path), "ind_gdp_fallback.json")
+        fb_path = alt if os.path.exists(alt) else fb_path
+    if os.path.exists(fb_path):
+        try:
+            fb = json.load(open(fb_path))
+            for c, vals in (fb.get("c") or {}).items():
+                rec = data.setdefault(c, {})
+                for k in ("gdpT", "gdp"):
+                    if k not in vals:
+                        continue
+                    nv = vals[k]
+                    ov = rec.get(k)
+                    if ov is None or (isinstance(nv, list) and isinstance(ov, list) and len(nv) > 1 and len(ov) > 1 and nv[1] > ov[1]):
+                        rec[k] = nv
+        except Exception as e:
+            print("gdp fallback skipped:", e, file=sys.stderr)
     # drop aggregates (WB aggregate codes are not real countries but harmless); keep only 3-letter codes
     agg = set()
     try:
