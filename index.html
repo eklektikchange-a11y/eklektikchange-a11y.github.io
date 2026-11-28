@@ -122,9 +122,9 @@ function late(){pf("music-b64");setTimeout(grb,1500);window.__loadTR();setTimeou
 fetch("a/cur-img.json").then(function(r){return r.text()}).then(function(t){var e=document.createElement("script");e.type="application/json";e.id="cur-img";e.text=t;document.body.appendChild(e);window.dispatchEvent(new Event("asset:cur-img"))}).catch(function(){})},400)}
 var TRL=0;window.__loadTR=function(){if(TRL)return;TRL=1;var e=document.createElement("script");e.src="a/tr.js";e.async=true;document.body.appendChild(e)};
 var lg="ru";try{lg=localStorage.getItem("ew_lang")||"ru"}catch(e){}
-var L=["maplibre.js","liberty.js","limb.js"].concat(lg!="ru"?["tr.js"]:[]).concat(["app.js"]);if(lg!="ru")TRL=1;L.forEach(function(f,i){var e=document.createElement("script");e.src="a/"+f+(f==="app.js"||f==="tr.js"?"?v=korea1":"");e.async=false;if(i==L.length-1)e.onload=after;document.body.appendChild(e)});
+var L=["maplibre.js","liberty.js","limb.js"].concat(lg!="ru"?["tr.js"]:[]).concat(["app.js"]);if(lg!="ru")TRL=1;L.forEach(function(f,i){var e=document.createElement("script");e.src="a/"+f+(f==="app.js"||f==="tr.js"?"?v=srci1":"");e.async=false;if(i==L.length-1)e.onload=after;document.body.appendChild(e)});
 })();</script>
-<script>window.__ewBuild='korea1';
+<script>window.__ewBuild='srci1';
 if('serviceWorker' in navigator){
   var __ewReloading=false;
   navigator.serviceWorker.addEventListener('controllerchange',function(){
